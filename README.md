@@ -1,6 +1,6 @@
 # Botnet-Buster
 
-Alexander L. Hayes and Brian Ricks
+**[Alexander L. Hayes](https://github.com/batflyer)** and **[Brian Ricks](https://github.com/absolutefunk)**
 
 Final project for Professor Natarajan's spring seminar on Statistical Relational Learning. Applying SRL to the problem of discerning botnet traffic from normal traffic.
 
