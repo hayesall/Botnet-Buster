@@ -5,8 +5,8 @@
 #      Summary: A download script for the CTU-13-Dataset.
 #      Author: Alexander L. Hayes (@batflyer)
 #      Email: alexander.hayes@utdallas.edu
-#      Copyright: Copyright (c) 2018, Alexander L. Hayes
-#      License: NULL (not provided currently)
+#      Copyright: Alexander L. Hayes and Brian Ricks
+#      License: GPL-v3
 #  
 #  Description:
 #      It's generally bad practice to push large data
@@ -16,8 +16,20 @@
 #      $ bash download.sh
 #  
 #  License:
-#      Licensing information is not currently provided.
-#      Usage rights are not granted by the author.
+#  Copyright (c) 2018 Alexander L. Hayes and Brian Ricks
+#  
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU General Public License for more details.
+#  
+#  See <http://www.gnu.org/licenses/> or the license in the base of
+#  this repository.
 
 scriptmode=
 
@@ -25,7 +37,7 @@ while getopts "hs" o; do
     case ${o} in
 	h)
 	    # Help
-	    head -n 20 $0 | tail -n +3 | sed 's/#  //'
+	    head -n 32 $0 | tail -n +3 | sed 's/#  //'
 	    exit 0
 	    ;;
 	s)
