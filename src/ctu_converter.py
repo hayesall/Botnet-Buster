@@ -18,6 +18,8 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
+from os import path
+
 import numpy as np
 import pandas as pd
 
@@ -39,6 +41,8 @@ __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
 
+verbosity = 0
+
 class Arguments:
 
     def __init__(self):
@@ -57,11 +61,31 @@ class Arguments:
 
         self.args = parser.parse_args()
 
+def binetflow_converter(path_to_file):
+
+    # Read the .binetflow csv located at path_to_file, drop columns which are less useful.
+    binetflow_df = pd.read_csv(path_to_file)
+    binetflow_df = binetflow_df.drop(['StartTime', 'sTos', 'dTos'], axis=1)
+    
+    # Debug option, show the columns:
+    if verbosity > 0:
+        print(binetflow_df)
+
+    return binetflow_df
+        
 def main():
 
-    args = Arguments().args
-    print(args)
-    
+    # A gross hack:
+    global verbosity
 
+    # Get the arguments from the Arguments class.
+    args = Arguments().args
+
+    # If verbose was set to true, increment the verbosity.
+    if args.verbose:
+        verbosity = verbosity + 1
+    
+    binetflow_converter(args.file)
+    
 if __name__ == '__main__':
     main()
