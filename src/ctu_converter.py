@@ -66,7 +66,7 @@ def binetflow_converter(path_to_file):
     # Read the .binetflow csv located at path_to_file, drop columns which are less useful.
     binetflow_df = pd.read_csv(path_to_file)
     binetflow_df = binetflow_df.drop(['StartTime', 'sTos', 'dTos'], axis=1)
-    
+
     # Debug option, show the columns:
     if verbosity > 0:
         print(binetflow_df)
@@ -85,7 +85,7 @@ def main():
     if args.verbose:
         verbosity = verbosity + 1
     
-    binetflow_converter(args.file)
+    flow = binetflow_converter(args.file)
     
 if __name__ == '__main__':
     main()
