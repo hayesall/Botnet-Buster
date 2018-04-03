@@ -94,7 +94,11 @@ def dataframe_to_relations(df):
     flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
     dataframe_to_relations(flow)
     """
-    pass
+    
+    for column in df:
+        for row in column:
+            print(row)
+            exit()
         
 def main():
 
@@ -109,6 +113,8 @@ def main():
         verbosity = verbosity + 1
     
     flow = binetflow_converter(args.file, dropCols=['StartTime', 'sTos', 'dTos'])
+
+    dataframe_to_relations(flow)
     
 if __name__ == '__main__':
     main()
