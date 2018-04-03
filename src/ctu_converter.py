@@ -78,6 +78,23 @@ def binetflow_converter(path_to_file, dropCols=[]):
         print(binetflow_df)
 
     return binetflow_df
+
+def dataframe_to_relations(df):
+    """
+    Converts a dataframe into a set of positives, negatives, and facts
+    in the manner used by BoostSRL.
+
+    BoostSRL:
+    https://github.com/starling-lab/BoostSRL/
+
+    ---
+
+    Example:
+
+    flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
+    dataframe_to_relations(flow)
+    """
+    pass
         
 def main():
 
