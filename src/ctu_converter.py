@@ -52,20 +52,26 @@ class Arguments:
             epilog="Copyright 2018 Alexander L. Hayes and Brian Ricks. GPL-v3."
         )
 
-        parser.add_argument(
-            '-v', '--verbose', action="store_true",
+        parser.add_argument('-v', '--verbose', action="store_true",
             help='Increase verbosity to help with debugging')
-        parser.add_argument(
-            '-f', '--file', type=str,
+        parser.add_argument('-f', '--file', type=str,
             help='Specify path to .binetflow')
 
         self.args = parser.parse_args()
 
-def binetflow_converter(path_to_file):
+def binetflow_converter(path_to_file, dropCols=[]):
+    """
+    Takes a path to a .binetflow, reads the file, and returns a dataframe.
+
+    Example:
+      flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
+    """
 
     # Read the .binetflow csv located at path_to_file, drop columns which are less useful.
     binetflow_df = pd.read_csv(path_to_file)
-    binetflow_df = binetflow_df.drop(['StartTime', 'sTos', 'dTos'], axis=1)
+
+    if dropCols:
+        binetflow_df = binetflow_df.drop(dropCols, axis=1)
 
     # Debug option, show the columns:
     if verbosity > 0:
@@ -85,7 +91,7 @@ def main():
     if args.verbose:
         verbosity = verbosity + 1
     
-    flow = binetflow_converter(args.file)
+    flow = binetflow_converter(args.file, dropCols=['StartTime', 'sTos', 'dTos'])
     
 if __name__ == '__main__':
     main()
