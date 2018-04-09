@@ -63,8 +63,12 @@ def binetflow_converter(path_to_file, dropCols=[]):
     """
     Takes a path to a .binetflow, reads the file, and returns a dataframe.
 
+    @method binetflow_converter
+    @param  {str}       path_to_file        path to the .binetflow file
+    @param  {list}      dropCols            list of strings representing columns to be dropped.
+
     Example:
-      flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
+      flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow', dropCols=['StartTime'])
     """
 
     # Read the .binetflow csv located at path_to_file, drop columns which are less useful.
@@ -82,24 +86,22 @@ def binetflow_converter(path_to_file, dropCols=[]):
 def dataframe_to_relations(df):
     """
     Converts a dataframe into a set of positives, negatives, and facts
-    in the manner used by BoostSRL.
+    in the manner used by BoostSRL (https://github.com/starling-lab/BoostSRL).
 
-    BoostSRL:
-    https://github.com/starling-lab/BoostSRL/
-
-    ---
+    @method dataframe_to_relations
+    @param  {object}    df                  pandas dataframe
 
     Example:
 
     flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
     dataframe_to_relations(flow)
     """
-    
+
     for column in df:
         for row in column:
             print(row)
             exit()
-        
+
 def main():
 
     # A gross hack:
@@ -111,10 +113,10 @@ def main():
     # If verbose was set to true, increment the verbosity.
     if args.verbose:
         verbosity = verbosity + 1
-    
-    flow = binetflow_converter(args.file, dropCols=['StartTime', 'sTos', 'dTos'])
+
+    flow = binetflow_converter(args.file, dropCols=['StartTime'])
 
     dataframe_to_relations(flow)
-    
+
 if __name__ == '__main__':
     main()
