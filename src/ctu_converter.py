@@ -56,6 +56,8 @@ class Arguments:
             help='Increase verbosity to help with debugging')
         parser.add_argument('-f', '--file', type=str,
             help='Specify path to .binetflow')
+        parser.add_argument('-o', '--outfile', type=str,
+            help='Specify path to the output file where predicates will be written.')
 
         self.args = parser.parse_args()
 
@@ -68,7 +70,7 @@ def binetflow_converter(path_to_file, dropCols=[]):
     @param  {list}      dropCols            list of strings representing columns to be dropped.
 
     Example:
-      flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow', dropCols=['StartTime'])
+    >>> flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow', dropCols=['StartTime'])
     """
 
     # Read the .binetflow csv located at path_to_file, drop columns which are less useful.
@@ -83,24 +85,26 @@ def binetflow_converter(path_to_file, dropCols=[]):
 
     return binetflow_df
 
-def dataframe_to_relations(df):
+def dataframe_to_relations(path_to_file, df):
     """
     Converts a dataframe into a set of positives, negatives, and facts
     in the manner used by BoostSRL (https://github.com/starling-lab/BoostSRL).
 
     @method dataframe_to_relations
+    @param  {str}       path_to_file        output file to be written to
     @param  {object}    df                  pandas dataframe
 
     Example:
-
-    flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
-    dataframe_to_relations(flow)
+    >>> flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
+    >>> dataframe_to_relations(flow)
     """
 
-    for column in df:
-        for row in column:
-            print(row)
-            exit()
+    headers = list(df)
+    print(headers)
+
+    for _, row in df.iterrows():
+        print(row)
+        exit()
 
 def main():
 
@@ -116,7 +120,7 @@ def main():
 
     flow = binetflow_converter(args.file, dropCols=['StartTime'])
 
-    dataframe_to_relations(flow)
+    dataframe_to_relations(args.outfile, flow)
 
 if __name__ == '__main__':
     main()
