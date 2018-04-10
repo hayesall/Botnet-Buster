@@ -192,6 +192,18 @@ def dataframe_to_relations(path_to_file, df, verbosity=False, parallel=False):
 
         return facts_list, posEx_list
 
+    def processRowsParallel(df):
+        """
+        Converts a dataframe into a list of positive examples and a list of
+        facts. Performs this conversion in parallel (based on the available
+        cores).
+
+        @method processRowsParallel
+        @param {object}         df
+        @return {list}{list}    list of facts, list of positive examples
+        """
+        pass
+
     if parallel:
         print('Not implemented')
         exit()
