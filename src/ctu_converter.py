@@ -18,9 +18,6 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
-from os import path
-
-import numpy as np
 import pandas as pd
 
 import argparse
@@ -92,10 +89,10 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
         'id' and 'value' are wrapped in "double quotes", and spaces are removed
 
         @method predicateLogicBuilder
-        @param  {str}   type
-        @param  {str}   id
-        @param  {str}   value
-        @return {str}   ret
+        @param  {str}   type                type of the predicate
+        @param  {str}   id                  identifier attribute
+        @param  {str}   value               value of the identifier
+        @return {str}   ret                 string of the form 'A("B","C").'
 
         Example:
         >>> f = predicateLogicBuilder('DstAddr', '0', '147.32.84.59')
@@ -113,6 +110,28 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
 
         return ret
 
+    def listToFile(path_to_file, ls):
+        """
+        Writes the contents of a list to a file. Each item in the list is writ-
+        ten on a line in the file.
+
+        @method listToFile
+        @param  {str}   path_to_file        file to be written to
+        @param  {list}  ls                  list of strings
+        @return {}
+
+        Example:
+        >>> listToFile('example.txt', ['A', 'B'])
+        >>> exit()
+        $ cat example.txt
+        A
+        B
+        """
+
+        with open(path_to_file, 'w') as f:
+            for item in ls:
+                f.write(item + '\n')
+
     # Column names from the dataframe can be read by converting to a list.
     headers = list(df)
     # The last column is the label, add it to the posEx
@@ -124,6 +143,8 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
     facts_list = []
     posEx_list = []
 
+    # Iterate over the rows in the dataframe, converting the row contents
+    # to positive examples and facts about each entry.
     for ID, row in df.iterrows():
 
         # Update the list of facts by converting rows to predicate logic.
@@ -147,7 +168,9 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
                 str(row[posEx]))
         posEx_list.append(p)
 
-        exit()
+    # When finished, write the contents to files.
+    listToFile('posEx.txt', posEx_list)
+    listToFile('facts.txt', facts_list)
 
 def main():
 
