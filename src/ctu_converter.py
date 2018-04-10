@@ -198,14 +198,88 @@ def dataframe_to_relations(path_to_file, df, verbosity=False, parallel=False):
         facts. Performs this conversion in parallel (based on the available
         cores).
 
+        As a side note, this was a good learning opportunity for doing parall-
+        elism in Python. A few references that I found helpful are as follows:
+        * https://blog.dominodatalab.com/simple-parallelization/
+        * https://stackoverflow.com/questions/40357434/pandas-df-iterrow-parallelization
+        * https://pythonhosted.org/joblib/parallel.html
+
         @method processRowsParallel
         @param {object}         df
         @return {list}{list}    list of facts, list of positive examples
         """
-        pass
 
+        # Column names from the dataframe can be read by converting to a list.
+        headers = list(df)
+        # The last column is the label, add it to the posEx
+        posEx = headers[-1]
+        # Everything else is part of the facts.
+        facts = headers[:-1]
+
+        # Create lists to store the string representations before writing to files.
+        facts_list = []
+        posEx_list = []
+
+        # set the number of cores available
+        num_cores = mp.cpu_count()
+
+        # Split the dataframe based on the number of cores available.
+        chunk_size = int(df.shape[0]/num_cores)
+
+        # split the dataframe into bite-size chunks based on chunk_size
+        # This solution is not quite perfect (it creates more chunks than cores)
+        #chunks = [df.ix[df.index[i:i + chunk_size]] for i in range(0, df.shape[0], chunk_size)]
+        chunks = [df.iloc[i:i + chunk_size,:] for i in range(0, df.shape[0], chunk_size)]
+
+        print(chunks[1])
+
+        print(num_cores)
+        print(chunk_size)
+        print(len(chunks))
+
+        print(type(i) for i in chunks)
+        exit()
+
+        # Define the function which will be executed by each process.
+        def process(df):
+
+            facts_list = []
+            posEx_list = []
+
+            for ID, row in df.iterrows():
+
+                # Update the list of facts by converting rows to predicate logic.
+                for attribute in facts:
+
+                    f = predicateLogicBuilder(
+                        str(attribute),
+                        str(ID),
+                        str(row[attribute]))
+                    facts_list.append(f)
+
+                # Perform the same task on the positive examples.
+                p = predicateLogicBuilder(
+                        str(posEx),
+                        str(ID),
+                        str(row[posEx]))
+                posEx_list.append(p)
+
+            return facts_list, posEx_list
+
+        # create our pool with num_cores processes
+        pool = mp.Pool(processes=num_cores)
+
+        # Apply the `process` function to each chunk in the chunks list.
+        result = pool.map(process, chunks)
+        print(len(result))
+        exit()
+
+    # Main functionality starts here.
     if parallel:
-        print('Not implemented')
+        if verbosity:
+            print('Performing conversion in parallel.')
+            v_value = 100
+        facts_list, posEx_list = processRowsParallel(df)
         exit()
     else:
         # Perform conversion sequentially.
