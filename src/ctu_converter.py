@@ -84,14 +84,21 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
     >>> dataframe_to_relations(flow)
     """
 
+    # Column names from the dataframe can be read by converting to a list.
     headers = list(df)
-    label = headers[-1]
-    print(label)
-    print(headers)
+    # The last column is the label, add it to the posEx
+    posEx = headers[-1]
+    # Everything else is part of the facts.
+    facts = headers[:-1]
 
-    for _, row in df.iterrows():
-        for header in headers:
-            print(row[header])
+    for ID, row in df.iterrows():
+
+        print('---Facts---')
+        for attribute in facts:
+            print(attribute + '(', ID, ',', row[attribute], ').')
+
+        print('---PosEx---')
+        print(posEx, '(', ID, row[posEx], ').')
         exit()
 
 def main():
