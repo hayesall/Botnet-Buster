@@ -41,29 +41,6 @@ __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
 
-verbosity = 0
-
-class Arguments:
-
-    def __init__(self):
-
-        parser = argparse.ArgumentParser(
-            description="Converts .binetflow files into the relational format used by BoostSRL.",
-            epilog="Copyright 2018 Alexander L. Hayes and Brian Ricks. GPL-v3."
-        )
-
-        parser.add_argument('-v', '--verbose', action="store_true",
-            help='Increase verbosity to help with debugging')
-        parser.add_argument('-f', '--file', type=str,
-            help='Specify path to .binetflow')
-        parser.add_argument('-o', '--output', type=str,
-            default='binetflow.out',
-            help='''Specify path to the output file where predicates
-                    will be written. If an output file is not specified,
-                    defaults to binetflow.out in the same directory.''')
-
-        self.args = parser.parse_args()
-
 def binetflow_converter(path_to_file, dropCols=[]):
     """
     Takes a path to a .binetflow, reads the file, and returns a dataframe.
@@ -112,15 +89,33 @@ def dataframe_to_relations(path_to_file, df):
 
 def main():
 
-    # A gross hack:
-    global verbosity
+    # Instantiate an argument parser to help describe the program.
+    parser = argparse.ArgumentParser(
+        description='''Converts .binetflow files into the relational format
+                    used by BoostSRL.''',
+        epilog='''Copyright (C) 2018 Alexander L. Hayes and Brian Ricks.
+                    Distributed under the terms of the GPL-v3. A full
+                    copy of the license is available in the base of the
+                    repository, or online at <http://www.gnu.org/licenses/>'''
+    )
 
-    # Get the arguments from the Arguments class.
-    args = Arguments().args
+    parser.add_argument('-v', '--verbose', action="store_true",
+        help='Increase verbosity to help with debugging')
+    parser.add_argument('-f', '--file', type=str,
+        help='Specify path to .binetflow')
+    parser.add_argument('-o', '--output', type=str,
+        default='binetflow.out',
+        help='''Specify path to the output file where predicates will be
+                written. If an output file is not specified, defaults to
+                binetflow.out in the same directory.''')
+
+    args = parser.parse_args()
 
     # If verbose was set to true, increment the verbosity.
     if args.verbose:
-        verbosity = verbosity + 1
+        verbosity = 1
+    else:
+        verbosity = 0
 
     flow = binetflow_converter(args.file, dropCols=['StartTime'])
 
