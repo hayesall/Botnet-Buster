@@ -18,8 +18,14 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
-import pandas as pd
+# progress.py is used under the terms of the MIT license
+from progress import progress
 
+from joblib import Parallel
+from joblib import delayed
+
+import multiprocessing as mp
+import pandas as pd
 import argparse
 
 
@@ -143,9 +149,16 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
     facts_list = []
     posEx_list = []
 
+    # A couple values to make a helpful progress bar.
+    number_of_rows = len(df)
+    counter = 0
+
     # Iterate over the rows in the dataframe, converting the row contents
     # to positive examples and facts about each entry.
     for ID, row in df.iterrows():
+
+        # Helpful progress bar
+        progress(counter, number_of_rows, status='Converting files...')
 
         # Update the list of facts by converting rows to predicate logic.
         for attribute in facts:
@@ -167,6 +180,9 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
                 str(ID),
                 str(row[posEx]))
         posEx_list.append(p)
+
+        # Increment the counter
+        counter += 1
 
     # When finished, write the contents to files.
     listToFile('posEx.txt', posEx_list)
