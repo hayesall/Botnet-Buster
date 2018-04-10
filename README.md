@@ -8,7 +8,15 @@ Final project for Professor Sriraam Natarajan's spring seminar on Statistical Re
 
 * `git clone https://github.com/batflyer/Botnet-Buster.git`
 * `cd Botnet-Buster`
-* Download the CTU-13-Dataset: `bash downloader.sh`
+* `bash downloader.sh`
+
+## Converting .binetflow to BoostSRL format:
+
+`ctu_converter.py` is a Python script for converting a .binetflow file to the relational format used by BoostSRL. Its design is intended for commandline interaction (options may be viewed with the `-h` flag).
+
+Convert a .binetflow to a set of facts and positive examples, creating `posEx.txt` and `facts.txt`.
+
+* `python src/ctu_converter.py -f CTU-13-Dataset/1/capture20110810.binetflow`
 
 ## License
 
