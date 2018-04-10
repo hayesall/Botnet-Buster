@@ -18,6 +18,10 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 A full [copy of the license](https://github.com/batflyer/Botnet-Buster/blob/master/LICENSE) is available in the base of this repository. For more information, see https://www.gnu.org/licenses/
 
+## Attribution
+
+* `progress.py` was created by Vladimir Ignatev (@vladignatyev) and distributed under the terms of the MIT License. Discussion can be viewed on the [GitHub Gist page](https://gist.github.com/vladignatyev/06860ec2040cb497f0f3).
+
 ## References
 
 * [1] Garcia, Sebastian. Malware Capture Facility Project. Retrieved from https://stratosphereips.org
