@@ -41,13 +41,15 @@ __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
 
-def binetflow_converter(path_to_file, dropCols=[]):
+def binetflow_converter(path_to_file, dropCols=[], verbosity=False):
     """
     Takes a path to a .binetflow, reads the file, and returns a dataframe.
 
     @method binetflow_converter
     @param  {str}       path_to_file        path to the .binetflow file
     @param  {list}      dropCols            list of strings representing columns to be dropped.
+    @param  {bool}      verbosity           verbose mode (True = more printing)
+    @return {df}        binetflow_df        contents of the .binetflow file as a dataframe
 
     Example:
     >>> flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow', dropCols=['StartTime'])
@@ -65,14 +67,17 @@ def binetflow_converter(path_to_file, dropCols=[]):
 
     return binetflow_df
 
-def dataframe_to_relations(path_to_file, df):
+def dataframe_to_relations(path_to_file, df, verbosity=False):
     """
     Converts a dataframe into a set of positives, negatives, and facts
     in the manner used by BoostSRL (https://github.com/starling-lab/BoostSRL).
+    The output is written to 'path_to_file'.
 
     @method dataframe_to_relations
     @param  {str}       path_to_file        output file to be written to
     @param  {object}    df                  pandas dataframe
+    @param  {bool}      verbosity           verbose mode (True = more printing)
+    @return {}
 
     Example:
     >>> flow = binetflow_converter('CTU-13-Dataset/1/capture20110810.binetflow')
@@ -80,6 +85,8 @@ def dataframe_to_relations(path_to_file, df):
     """
 
     headers = list(df)
+    label = headers[-1]
+    print(label)
     print(headers)
 
     for _, row in df.iterrows():
@@ -113,13 +120,12 @@ def main():
 
     # If verbose was set to true, increment the verbosity.
     if args.verbose:
-        verbosity = 1
+        v = True
     else:
-        verbosity = 0
+        v = False
 
-    flow = binetflow_converter(args.file, dropCols=['StartTime'])
-
-    dataframe_to_relations(args.output, flow)
+    flow = binetflow_converter(args.file, dropCols=['StartTime'], verbosity=v)
+    dataframe_to_relations(args.output, flow, verbosity=v)
 
 if __name__ == '__main__':
     main()
