@@ -56,8 +56,11 @@ class Arguments:
             help='Increase verbosity to help with debugging')
         parser.add_argument('-f', '--file', type=str,
             help='Specify path to .binetflow')
-        parser.add_argument('-o', '--outfile', type=str,
-            help='Specify path to the output file where predicates will be written.')
+        parser.add_argument('-o', '--output', type=str,
+            default='binetflow.out',
+            help='''Specify path to the output file where predicates
+                    will be written. If an output file is not specified,
+                    defaults to binetflow.out in the same directory.''')
 
         self.args = parser.parse_args()
 
@@ -103,7 +106,8 @@ def dataframe_to_relations(path_to_file, df):
     print(headers)
 
     for _, row in df.iterrows():
-        print(row)
+        for header in headers:
+            print(row[header])
         exit()
 
 def main():
@@ -120,7 +124,7 @@ def main():
 
     flow = binetflow_converter(args.file, dropCols=['StartTime'])
 
-    dataframe_to_relations(args.outfile, flow)
+    dataframe_to_relations(args.output, flow)
 
 if __name__ == '__main__':
     main()
