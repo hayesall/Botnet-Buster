@@ -84,6 +84,35 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
     >>> dataframe_to_relations(flow)
     """
 
+    def predicateLogicBuilder(type, id, value):
+        """
+        Converts inputs into (id, value) pairs, creating
+        positive examples and facts in predicate-logic format.
+
+        'id' and 'value' are wrapped in "double quotes", and spaces are removed
+
+        @method predicateLogicBuilder
+        @param  {str}   type
+        @param  {str}   id
+        @param  {str}   value
+        @return {str}   ret
+
+        Example:
+        >>> f = predicateLogicBuilder('DstAddr', '0', '147.32.84.59')
+        >>> print(f)
+        DstAddr("0","147.32.84.59").
+        """
+
+        ret = ''
+        ret += type
+        ret += '("'
+        ret += id.replace(' ','')
+        ret += '","'
+        ret += value.replace(' ', '')
+        ret += '").'
+
+        return ret
+
     # Column names from the dataframe can be read by converting to a list.
     headers = list(df)
     # The last column is the label, add it to the posEx
@@ -91,14 +120,33 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
     # Everything else is part of the facts.
     facts = headers[:-1]
 
+    # Create lists to store the string representations before writing to files.
+    facts_list = []
+    posEx_list = []
+
     for ID, row in df.iterrows():
 
-        print('---Facts---')
+        # Update the list of facts by converting rows to predicate logic.
         for attribute in facts:
-            print(attribute + '(', ID, ',', row[attribute], ').')
 
-        print('---PosEx---')
-        print(posEx, '(', ID, row[posEx], ').')
+            if verbosity:
+                print(attribute)
+                print(ID)
+                print(row[attribute])
+
+            f = predicateLogicBuilder(
+                str(attribute),
+                str(ID),
+                str(row[attribute]))
+            facts_list.append(f)
+
+        # Perform the same task on the positive examples.
+        p = predicateLogicBuilder(
+                str(posEx),
+                str(ID),
+                str(row[posEx]))
+        posEx_list.append(p)
+
         exit()
 
 def main():
