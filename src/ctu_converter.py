@@ -70,7 +70,7 @@ def binetflow_converter(path_to_file, dropCols=[], verbosity=False):
 
     return binetflow_df
 
-def dataframe_to_relations(path_to_file, df, verbosity=False):
+def dataframe_to_relations(path_to_file, df, verbosity=False, parallel=False):
     """
     Converts a dataframe into a set of positives, negatives, and facts
     in the manner used by BoostSRL (https://github.com/starling-lab/BoostSRL).
@@ -138,55 +138,72 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
             for item in ls:
                 f.write(item + '\n')
 
-    # Column names from the dataframe can be read by converting to a list.
-    headers = list(df)
-    # The last column is the label, add it to the posEx
-    posEx = headers[-1]
-    # Everything else is part of the facts.
-    facts = headers[:-1]
+    def processRowsIterative(df):
+        """
+        Converts a dataframe into a list of positive examples and a list of
+        facts. Performs this conversion in an iterative manner, not taking
+        advantages of parallelism.
 
-    # Create lists to store the string representations before writing to files.
-    facts_list = []
-    posEx_list = []
+        @method processRowsIterative
+        @param  {object}        df
+        @return {list}{list}    list of facts, list of positive examples
+        """
 
-    # A couple values to make a helpful progress bar.
-    number_of_rows = len(df)
-    counter = 0
+        # Column names from the dataframe can be read by converting to a list.
+        headers = list(df)
+        # The last column is the label, add it to the posEx
+        posEx = headers[-1]
+        # Everything else is part of the facts.
+        facts = headers[:-1]
 
-    # Iterate over the rows in the dataframe, converting the row contents
-    # to positive examples and facts about each entry.
-    for ID, row in df.iterrows():
+        # Create lists to store the string representations before writing to files.
+        facts_list = []
+        posEx_list = []
 
-        # Helpful progress bar
-        progress(counter, number_of_rows, status='Converting files...')
+        # A couple values to make a helpful progress bar.
+        number_of_rows = len(df)
+        counter = 0
 
-        # Update the list of facts by converting rows to predicate logic.
-        for attribute in facts:
+        # Iterate over the rows in the dataframe, converting the row contents
+        # to positive examples and facts about each entry.
+        for ID, row in df.iterrows():
 
-            if verbosity:
-                print(attribute)
-                print(ID)
-                print(row[attribute])
+            # Helpful progress bar
+            progress(counter, number_of_rows, status='Converting files...')
 
-            f = predicateLogicBuilder(
-                str(attribute),
-                str(ID),
-                str(row[attribute]))
-            facts_list.append(f)
+            # Update the list of facts by converting rows to predicate logic.
+            for attribute in facts:
 
-        # Perform the same task on the positive examples.
-        p = predicateLogicBuilder(
-                str(posEx),
-                str(ID),
-                str(row[posEx]))
-        posEx_list.append(p)
+                f = predicateLogicBuilder(
+                    str(attribute),
+                    str(ID),
+                    str(row[attribute]))
+                facts_list.append(f)
 
-        # Increment the counter
-        counter += 1
+            # Perform the same task on the positive examples.
+            p = predicateLogicBuilder(
+                    str(posEx),
+                    str(ID),
+                    str(row[posEx]))
+            posEx_list.append(p)
+
+            # Increment the counter
+            counter += 1
+
+        return facts_list, posEx_list
+
+    if parallel:
+        print('Not implemented')
+        exit()
+    else:
+        # Perform conversion sequentially.
+        if verbosity:
+            print('Performing conversion sequentially.')
+        facts_list, posEx_list = processRowsIterative(df)
 
     # When finished, write the contents to files.
-    listToFile('posEx.txt', posEx_list)
     listToFile('facts.txt', facts_list)
+    listToFile('posEx.txt', posEx_list)
 
 def main():
 
@@ -202,6 +219,10 @@ def main():
 
     parser.add_argument('-v', '--verbose', action="store_true",
         help='Increase verbosity to help with debugging')
+    parser.add_argument('-p', '--parallel', action="store_true",
+        help='''Run ctu_converter.py in parallel mode, where the inner
+                for-loop iterating over the contents of the .binetflow
+                file is parallelized over the available cores.''')
     parser.add_argument('-f', '--file', type=str,
         help='Specify path to .binetflow')
     parser.add_argument('-o', '--output', type=str,
@@ -219,7 +240,7 @@ def main():
         v = False
 
     flow = binetflow_converter(args.file, dropCols=['StartTime'], verbosity=v)
-    dataframe_to_relations(args.output, flow, verbosity=v)
+    dataframe_to_relations(args.output, flow, verbosity=v, parallel=args.parallel)
 
 if __name__ == '__main__':
     main()
