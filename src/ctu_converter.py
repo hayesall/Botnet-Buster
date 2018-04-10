@@ -62,7 +62,7 @@ def binetflow_converter(path_to_file, dropCols=[], verbosity=False):
         binetflow_df = binetflow_df.drop(dropCols, axis=1)
 
     # Debug option, show the columns:
-    if verbosity > 0:
+    if verbosity:
         print(binetflow_df)
 
     return binetflow_df
