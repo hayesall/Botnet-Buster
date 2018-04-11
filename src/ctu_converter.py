@@ -39,7 +39,7 @@ __credits__ = [
 ]
 
 __license__ = "GPL-v3"
-__version__ = "0.0.1"
+__version__ = "0.1.2"
 __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"

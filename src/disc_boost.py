@@ -18,3 +18,22 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
+__author__ = "Alexander L. Hayes (@batflyer)"
+__copyright__ = "Copyright (C) 2018 Alexander L. Hayes and Brian Ricks"
+__credits__ = [
+    "Alexander L. Hayes (@batflyer)",
+    "Brian Ricks (@absolutefunk)",
+    "Sriraam Natarajan (@boost-starai)",
+    "Gautam Kunapuli (@gkunapuli)"
+]
+
+__license__ = "GPL-v3"
+__version__ = "0.1.2"
+__maintainer__ = "Alexander L. Hayes (@batflyer)"
+__email__ = "alexander@batflyer.net"
+__status__ = "Prototype"
+
+
+
+if __name__ == '__main__':
+    print('Hello World')
