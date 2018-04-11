@@ -57,9 +57,6 @@ function Downloader() {
     
     # Use unar to extract from the archive.
     unar CTU-13-Dataset.tar.bz2
-    
-    # Perform cleanup
-    rm -f CTU-13-Dataset.tar.bz2
 }
 
 function Cleanup() {
@@ -76,7 +73,7 @@ function Main() {
 	if [[ "$download" = "y" ]]; then
 	    Downloader
 
-	    printf "Remove the .tar.bz2 archive? [y/n]"
+	    printf "Remove the .tar.bz2 archive? [y/n] "
 	    read -r removal
 
 	    if [[ "$removal" = "y" ]]; then
