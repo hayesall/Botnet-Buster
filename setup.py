@@ -61,7 +61,7 @@ setup(
 
     keywords='statistical-learning pattern-classification',
 
-    install_requires = ['pandas'],
+    install_requires = ['pandas', 'joblib'],
     extras_require={
         'test': ['coverage']
     }
