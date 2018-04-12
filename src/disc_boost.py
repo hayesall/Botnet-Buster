@@ -18,6 +18,10 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
+# Installation may be broken on Python 3, I'll investigate that soon.
+# https://github.com/starling-lab/boostsrl-python-package
+from boostsrl import boostsrl
+
 __author__ = "Alexander L. Hayes (@batflyer)"
 __copyright__ = "Copyright (C) 2018 Alexander L. Hayes and Brian Ricks"
 __credits__ = [
@@ -41,6 +45,16 @@ class BayesNet:
         self.Nodes = []
         self.Edges = []
         self.Trees = []
+
+def SetModes(target, observed):
+    bk = [
+        "friends(+Person, -Person).",
+        "friends(-Person, +Person).",
+        "smokes(+Person).",
+        "cancer(+Person)."
+    ]
+
+    boostsrl.modes(bk, ['cancer'], useStdLogicVariables=True, treeDepth=3, nodeSize=1)
 
 def LearnDB2N(T, F):
     """
