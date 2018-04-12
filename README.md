@@ -18,6 +18,11 @@ Convert a .binetflow to a set of facts and positive examples, creating `posEx.tx
 
 * `python src/ctu_converter.py -f CTU-13-Dataset/1/capture20110810.binetflow`
 
+## Weka Discretizations
+
+* `curl -L http://prdownloads.sourceforge.net/weka/weka-3-9-2.zip -o weka-3-9-2.zip`
+* `unzip weka-3-9-2.zip`
+
 ## License
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
