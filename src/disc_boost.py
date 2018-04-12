@@ -33,6 +33,15 @@ __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
 
+class BayesNet:
+    # Basic class for storing nodes and edges in a Bayes Net, as well as the
+    # trees learned along the way.
+
+    def __init__(self):
+        self.Nodes = []
+        self.Edges = []
+        self.Trees = []
+
 def LearnDB2N(T, F):
     """
     Learns Bayes Network from an ordered set of targets and observed features.
@@ -70,10 +79,34 @@ def LearnDB2N(T, F):
 
     Example:
     >>> targets = ['ekg', 'angio', 'vr']
-    >>> observs = ['t1', t2]
+    >>> observs = ['t1', 't2']
     >>> BayesNet = LearnDB2N(targets, observs)
     """
-    pass
+
+    # =================== Algorithm 1: LearnDB2N ======================
+    # 1.        Input <T, F, O>
+    # 2.        Output BN<N,E,T>
+    # 3.        for i=1 to |T|; do
+    # 4.            Ni = Ti
+    # 5.            Ti = SFGBoost(Ti, <F, T<1:i-1>) P(Ti | F, T<1:i-1>)
+    # 6.            Ei = GetFeatures(Ti)
+    # 7.        endfor
+    # 8.        return <N,E,T>
+
+    BN = BayesNet()
+
+    for i in range(len(T)):
+
+        BN.Nodes += T[i]
+        BN.Trees += SFGBoost()
+        BN.Edges += GetFeatures(T[i])
+
+        print(BN.Nodes, BN.Edges, BN.Trees)
+
+    return BN
+
+def GetFeatures(t):
+    return [0]
 
 def SFGBoost():
     """
@@ -91,7 +124,11 @@ def SFGBoost():
 
     @method SFGBoost
     """
-    pass
+    return [0]
 
 if __name__ == '__main__':
-    pass
+
+    targets = ['E', 'A', 'V']
+    observations = ['t1', 't2']
+
+    BayesNet = LearnDB2N(targets, observations)
