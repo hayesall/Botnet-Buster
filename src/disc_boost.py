@@ -115,16 +115,6 @@ class BayesNet:
         self.Edges = []
         self.Trees = []
 
-def SetModes(target, observed):
-    bk = [
-        "friends(+Person, -Person).",
-        "friends(-Person, +Person).",
-        "smokes(+Person).",
-        "cancer(+Person)."
-    ]
-
-    boostsrl.modes(bk, ['cancer'], useStdLogicVariables=True, treeDepth=3, nodeSize=1)
-
 def LearnDB2N(T, F):
     """
     Learns Bayes Network from an ordered set of targets and observed features.
