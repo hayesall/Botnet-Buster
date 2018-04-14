@@ -18,9 +18,6 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
-# Installation may be broken on Python 3, I'll investigate that soon.
-# https://github.com/starling-lab/boostsrl-python-package
-from boostsrl import boostsrl
 
 __author__ = "Alexander L. Hayes (@batflyer)"
 __copyright__ = "Copyright (C) 2018 Alexander L. Hayes and Brian Ricks"
@@ -36,6 +33,15 @@ __version__ = "0.1.2"
 __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
+
+class modes:
+
+    def __init__(self, background, target, loadAllLibraries=False,
+                useStdLogicVariables=False, usePrologVariables=False,
+                recursion=False, lineSearch=False, resampleNegs=False,
+                treeDepth=None, maxTreeDepth=3, nodeSize=1, numOfClauses=None,
+                minLCTrees=None, incrLCTrees=None):
+        pass
 
 class BayesNet:
     # Basic class for storing nodes and edges in a Bayes Net, as well as the
@@ -138,6 +144,9 @@ def SFGBoost():
 
     @method SFGBoost
     """
+
+
+
     return [0]
 
 if __name__ == '__main__':
