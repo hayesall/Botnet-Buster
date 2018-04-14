@@ -18,6 +18,7 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
+import re
 
 __author__ = "Alexander L. Hayes (@batflyer)"
 __copyright__ = "Copyright (C) 2018 Alexander L. Hayes and Brian Ricks"
@@ -34,14 +35,76 @@ __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
 
+mode_re = re.compile(r'[a-zA-Z0-9]*\(((\+|\-|\#)[a-zA-Z0-9]*,( )*)*(\+|\-|\#)[a-zA-Z0-9]*\)\.')
+
 class modes:
 
     def __init__(self, background, target, loadAllLibraries=False,
                 useStdLogicVariables=False, usePrologVariables=False,
                 recursion=False, lineSearch=False, resampleNegs=False,
-                treeDepth=None, maxTreeDepth=3, nodeSize=1, numOfClauses=None,
-                minLCTrees=None, incrLCTrees=None):
-        pass
+                treeDepth=None, maxTreeDepth=None, nodeSize=None,
+                numOfClauses=None, numOfCycles=None, minLCTrees=None,
+                incrLCTrees=None):
+
+        self.target = target
+        self.loadAllLibraries = loadAllLibraries
+        self.useStdLogicVariables = useStdLogicVariables
+        self.usePrologVariables = usePrologVariables
+        self.recursion = recursion
+        self.lineSearch = lineSearch
+        self.resampleNegs = resampleNegs
+        self.treeDepth = treeDepth
+        self.maxTreeDepth = maxTreeDepth
+        self.nodeSize = nodeSize
+        self.numOfClauses = numOfClauses
+        self.numOfCycles = numOfCycles
+        self.minLCTrees = minLCTrees
+        self.incrLCTrees = incrLCTrees
+
+        relevant = [[attr, value] for attr, value in self.__dict__.items()
+                    if (value is not False) and (value is not None)]
+
+        background_knowledge = []
+        for a, v in relevant:
+            if (a in ['useStdLogicVariables', 'usePrologVariables'] and v == True):
+                s = a + ': ' + str(v).lower() + '.'
+                background_knowledge.append(s)
+            elif a in ['target', 'bridgers', 'precomputes']:
+                pass
+            elif v == True:
+                s = 'setParam: ' + a + '=' + str(v).lower() + '.'
+                background_knowledge.append(s)
+            else:
+                s = 'setParam: ' + a + '=' + str(v) + '.'
+                background_knowledge.append(s)
+
+        for pred in background:
+            self.inspect_mode_syntax(pred)
+            background_knowledge.append('mode: ' + pred)
+
+        # Write the newly created background_knowledge to a file: background.txt
+        self.background_knowledge = background_knowledge
+        self.write_to_file(background_knowledge, 'background.txt')
+
+    def inspect_mode_syntax(self, example):
+        """
+        Uses a regular expression to check whether all of the examples in a list are in the correct form.
+           Example:
+              friends(+person, -person). ::: pass
+              friends(-person, +person). ::: pass
+              friends(person, person).   ::: FAIL
+        """
+        if not mode_re.search(example):
+            raise(Exception('Error when checking background knowledge; incorrect syntax: ' + example + \
+                            '\nBackground knowledge should only contain letters and numbers, of the form: ' + \
+    'predicate(+var1, -var2).'))
+
+    def write_to_file(self, content, path):
+        '''Takes a list (content) and a path/file (path) and writes each line of the list to the file location.'''
+        with open(path, 'w') as f:
+            for line in content:
+                f.write(line + '\n')
+        f.close()
 
 class BayesNet:
     # Basic class for storing nodes and edges in a Bayes Net, as well as the
@@ -150,6 +213,8 @@ def SFGBoost():
     return [0]
 
 if __name__ == '__main__':
+
+    m = modes(['friends(+p,-p).', 'friends(-p,+p).', 'cancer(+p).', 'smokes(+p).'], ['cancer'])
 
     targets = ['E', 'A', 'V']
     observations = ['t1', 't2']
