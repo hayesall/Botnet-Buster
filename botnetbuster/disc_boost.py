@@ -18,7 +18,14 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
+import os
 import re
+import sys
+
+if os.name == 'posix' and sys.version_info[0] < 3:
+    import subprocess32 as subprocess
+else:
+    import subprocess
 
 __author__ = "Alexander L. Hayes (@batflyer)"
 __copyright__ = "Copyright (C) 2018 Alexander L. Hayes and Brian Ricks"
@@ -49,6 +56,7 @@ background = [
     'Sport(+id, #sport).'
 ]
 
+"""
 background = [
     't1(+id, #t1).',
     't2(+id, #t2).',
@@ -57,6 +65,7 @@ background = [
     'A(+id, #a).',
     'V(+id, #v).'
 ]
+"""
 
 class modes:
 
@@ -251,7 +260,7 @@ def SFGBoost(Ti, F, Tprev):
         """
 
         # Step 1
-        predicates = F + Tprev + list(Ti)
+        predicates = F + Tprev + [Ti]
         # Step 2
         local_background = [background[i] for i in range(len(background)) if background[i].split('(')[0] in predicates]
         # Step 3
@@ -260,7 +269,7 @@ def SFGBoost(Ti, F, Tprev):
         print('All predicates', predicates)
         print('Local background:', local_background)
 
-    def FitRelRegressTree(alpha=0.5, beta=1):
+    def FitRelRegressTree(target, alpha=0.5, beta=-2, trees=5):
         """
         Fit a Relational Regression Tree to the current background background
         and data. Softmax values may be adjusted via the optional arguments.
@@ -268,34 +277,31 @@ def SFGBoost(Ti, F, Tprev):
         @method FitRelRegressTree
         @param  {float}     alpha       softmax value alpha
         @param  {int}       beta        softmax value beta
+        @param  {int}       trees       number of regression trees to learn
         @return {}
         """
-        pass
+
+        CALL = '(cd boosting; java -jar v1-0.jar -l -softm -alpha ' + str(alpha) + \
+               ' -beta ' + str(beta) + ' -train train/ -target ' + target + \
+               ' -trees ' + str(trees) + ')'
+
+        try:
+            p = subprocess.Popen(CALL, shell=True)
+            os.wait(p.pid, 0)
+        except:
+            raise(Exception('Encountered errors while running process: ', CALL))
 
     GenExamples(Ti, F, Tprev)
+    FitRelRegressTree(Ti)
 
     return [0]
 
 if __name__ == '__main__':
 
-    """
-    m = modes([
-        'Label(+id, #label).',
-        'Dport(+id, #dport).',
-        'Dur(+id, #dur).',
-        'TotBytes(+id, #totbytes).',
-        'TotPkts(+id, #totpkts).',
-        'SrcBytes(+id, #srcbytes).',
-        'Proto(+id, #proto).',
-        'Dir(+id, #dir).',
-        'Sport(+id, #sport).'
-    ], 'Label', maxTreeDepth=2, nodeSize=1)
-    """
+    targets = ['Label']
+    observations = ['Dport', 'Dur', 'TotBytes', 'TotPkts', 'SrcBytes', 'Proto', 'Dir', 'Sport']
 
-    #targets = ['Label']
-    #observations = ['Dport', 'Dur', 'TotBytes', 'TotPkts', 'SrcBytes', 'Proto', 'Dir', 'Sport']
-
-    targets = ['E', 'A', 'V']
-    observations = ['t1', 't2', 'age']
+    #targets = ['E', 'A', 'V']
+    #observations = ['t1', 't2', 'age']
 
     BayesNet = LearnDB2N(targets, observations)
