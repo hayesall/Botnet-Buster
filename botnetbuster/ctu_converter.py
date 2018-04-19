@@ -70,14 +70,14 @@ def binetflow_converter(path_to_file, dropCols=[], verbosity=False):
 
     return binetflow_df
 
-def dataframe_to_relations(path_to_file, df, verbosity=False):
+def dataframe_to_relations(train_or_test, df, verbosity=False):
     """
     Converts a dataframe into a set of positives, negatives, and facts
     in the manner used by BoostSRL (https://github.com/starling-lab/BoostSRL).
     The output is written to 'path_to_file'.
 
     @method dataframe_to_relations
-    @param  {str}       path_to_file        output file to be written to
+    @param  {str}       train_or_test       specifies 'train' or 'test'
     @param  {object}    df                  pandas dataframe
     @param  {bool}      verbosity           verbose mode (True = more printing)
     @return {}
@@ -140,14 +140,15 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
 
     # Column names from the dataframe can be read by converting to a list.
     headers = list(df)
-    # The last column is the label, add it to the posEx
-    posEx = headers[-1]
+    # The last column is the label, add it to the target
+    target = headers[-1]
     # Everything else is part of the facts.
     facts = headers[:-1]
 
     # Create lists to store the string representations before writing to files.
     facts_list = []
     posEx_list = []
+    negEx_list = []
 
     # A couple values to make a helpful progress bar.
     number_of_rows = len(df)
@@ -174,19 +175,34 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
                 str(row[attribute]))
             facts_list.append(f)
 
-        # Perform the same task on the positive examples.
-        p = predicateLogicBuilder(
-                str(posEx),
+        # Perform the same task on pos/neg examples.
+        if 'Botnet' in row[target]:
+            p = predicateLogicBuilder(
+                str(target),
                 str(ID),
-                str(row[posEx]))
-        posEx_list.append(p)
+                'Bot'
+            )
+            posEx_list.append(p)
+        else:
+            p = predicateLogicBuilder(
+                str(target),
+                str(ID),
+                'Not'
+            )
+            negEx_list.append(p)
 
         # Increment the counter
         counter += 1
 
     # When finished, write the contents to files.
-    listToFile('posEx.txt', posEx_list)
-    listToFile('facts.txt', facts_list)
+    if train_or_test == 'train':
+        listToFile('boosting/train/train_pos.txt', posEx_list)
+        listToFile('boosting/train/train_neg.txt', negEx_list)
+        listToFile('boosting/train/train_facts.txt', facts_list)
+    elif train_or_test == 'test':
+        listToFile('boosting/test/test_pos.txt', posEx_list)
+        listToFile('boosting/test/test_neg.txt', negEx_list)
+        listToFile('boosting/test/test_facts.txt', facts_list)
 
 def main():
 
@@ -202,13 +218,10 @@ def main():
 
     parser.add_argument('-v', '--verbose', action="store_true",
         help='Increase verbosity to help with debugging')
-    parser.add_argument('-f', '--file', type=str,
+    parser.add_argument('-f', '--file', type=str, required=True,
         help='Specify path to .binetflow')
-    parser.add_argument('-o', '--output', type=str,
-        default='binetflow.out',
-        help='''Specify path to the output file where predicates will be
-                written. If an output file is not specified, defaults to
-                binetflow.out in the same directory.''')
+    parser.add_argument('-o', '--output', type=str, required=True,
+        help='Specify either "train" or "test", changes where data is written')
 
     args = parser.parse_args()
 
@@ -220,6 +233,9 @@ def main():
 
     flow = binetflow_converter(args.file, dropCols=['StartTime', 'SrcAddr', 'DstAddr', 'sTos', 'dTos'], verbosity=v)
     dataframe_to_relations(args.output, flow, verbosity=v)
+
+    # Extra print statement drops the terminal to a newline.
+    print()
 
 if __name__ == '__main__':
     main()
