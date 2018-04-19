@@ -37,6 +37,27 @@ __status__ = "Prototype"
 
 mode_re = re.compile(r'[a-zA-Z0-9]*\(((\+|\-|\#)[a-zA-Z0-9]*,( )*)*(\+|\-|\#)[a-zA-Z0-9]*\)\.')
 
+background = [
+    'Label(+id, #label).',
+    'Dport(+id, #dport).',
+    'Dur(+id, #dur).',
+    'TotBytes(+id, #totbytes).',
+    'TotPkts(+id, #totpkts).',
+    'SrcBytes(+id, #srcbytes).',
+    'Proto(+id, #proto).',
+    'Dir(+id, #dir).',
+    'Sport(+id, #sport).'
+]
+
+background = [
+    't1(+id, #t1).',
+    't2(+id, #t2).',
+    'age(+id, #age).',
+    'E(+id, #e).',
+    'A(+id, #a).',
+    'V(+id, #v).'
+]
+
 class modes:
 
     def __init__(self, background, target, loadAllLibraries=False,
@@ -170,8 +191,8 @@ def LearnDB2N(T, F):
 
     for i in range(len(T)):
 
-        BN.Nodes += T[i]
-        BN.Trees += SFGBoost()
+        BN.Nodes += [T[i]]
+        BN.Trees += SFGBoost(T[i], F, T[:i])
         BN.Edges += GetFeatures(T[i])
 
         print(BN.Nodes, BN.Edges, BN.Trees)
@@ -181,7 +202,7 @@ def LearnDB2N(T, F):
 def GetFeatures(t):
     return [0]
 
-def SFGBoost():
+def SFGBoost(Ti, F, Tprev):
     """
     Performs softmax boosting.
 
@@ -196,14 +217,68 @@ def SFGBoost():
         [2]: https://starling.utdallas.edu/software/boostsrl/wiki/cost-sensitive-srl/
 
     @method SFGBoost
+    @param  {str}       Ti          current target
+    @param  {list}      F           list of features
+    @param  {list}      Tprev       all targets seen until this point
     """
 
+    # =================== Algorithm 2: SFGBoost ======================
+    # 1.        Input: <Ti, F, T<1:i-1>
+    # 2.        Psi(i, 0) = Initial function  (i is index of current target)
+    # 3.        for l=1 to U; do              (iterate through U gradients)
+    # 4.            Tr := GenExamples(i; Data; Psi(i, l-1))
+    # 5.            Delta(i, l) = FitRelRegressTree(Tr, F, T<1:i-1>)
+    # 6.            Psi(i, l) = Psi(i, l-1) + Delta(i, l)
+    # 7.        endfor
+    # 8.        return Psi
 
+    def GenExamples(Ti, F, Tprev):
+        """
+        "Generate Examples", or "Update Modes to Reflect Current State"
+
+        This is done in three steps:
+          1. Collect predicates by combining Ti, F, and Tprev.
+          2. Create a local set of background knowledge based on the predicates.
+             (drawn from the global set of background knowledge)
+          3. Write this set of modes to reflect the background knowledge for Ti.
+
+        @method GenExamples
+        @global {list}      background  global set of background knowledge
+        @param  {str}       Ti          current target
+        @param  {list}      F           list of features
+        @param  {list}      Tprev       all targets seen until this point
+        @return {}
+        """
+
+        # Step 1
+        predicates = F + Tprev + list(Ti)
+        # Step 2
+        local_background = [background[i] for i in range(len(background)) if background[i].split('(')[0] in predicates]
+        # Step 3
+        m = modes(local_background, Ti, maxTreeDepth=2, nodeSize=1)
+
+        print('All predicates', predicates)
+        print('Local background:', local_background)
+
+    def FitRelRegressTree(alpha=0.5, beta=1):
+        """
+        Fit a Relational Regression Tree to the current background background
+        and data. Softmax values may be adjusted via the optional arguments.
+
+        @method FitRelRegressTree
+        @param  {float}     alpha       softmax value alpha
+        @param  {int}       beta        softmax value beta
+        @return {}
+        """
+        pass
+
+    GenExamples(Ti, F, Tprev)
 
     return [0]
 
 if __name__ == '__main__':
 
+    """
     m = modes([
         'Label(+id, #label).',
         'Dport(+id, #dport).',
@@ -215,8 +290,12 @@ if __name__ == '__main__':
         'Dir(+id, #dir).',
         'Sport(+id, #sport).'
     ], 'Label', maxTreeDepth=2, nodeSize=1)
+    """
+
+    #targets = ['Label']
+    #observations = ['Dport', 'Dur', 'TotBytes', 'TotPkts', 'SrcBytes', 'Proto', 'Dir', 'Sport']
 
     targets = ['E', 'A', 'V']
-    observations = ['t1', 't2']
+    observations = ['t1', 't2', 'age']
 
     BayesNet = LearnDB2N(targets, observations)
