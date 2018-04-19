@@ -84,7 +84,7 @@ class modes:
 
         # Write the newly created background_knowledge to a file: background.txt
         self.background_knowledge = background_knowledge
-        self.write_to_file(background_knowledge, 'background.txt')
+        self.write_to_file(background_knowledge, 'boosting/background.txt')
 
     def inspect_mode_syntax(self, example):
         """
@@ -204,7 +204,17 @@ def SFGBoost():
 
 if __name__ == '__main__':
 
-    m = modes(['friends(+p,-p).', 'friends(-p,+p).', 'cancer(+p).', 'smokes(+p).'], ['cancer'])
+    m = modes([
+        'Label(+id, #label).',
+        'Dport(+id, #dport).',
+        'Dur(+id, #dur).',
+        'TotBytes(+id, #totbytes).',
+        'TotPkts(+id, #totpkts).',
+        'SrcBytes(+id, #srcbytes).',
+        'Proto(+id, #proto).',
+        'Dir(+id, #dir).',
+        'Sport(+id, #sport).'
+    ], 'Label', maxTreeDepth=2, nodeSize=1)
 
     targets = ['E', 'A', 'V']
     observations = ['t1', 't2']
