@@ -1,1 +1,6 @@
 v1-0.jar
+background.txt
+train/train_facts.txt
+train/train_learn_dribble.txt
+train/train_neg.txt
+train/train_pos.txt
