@@ -18,6 +18,26 @@ Convert a .binetflow to a set of facts and positive examples, creating `posEx.tx
 
 * `python src/ctu_converter.py -f CTU-13-Dataset/1/capture20110810.binetflow`
 
+## Weka Discretizations and Baselines
+
+* `curl -L http://prdownloads.sourceforge.net/weka/weka-3-9-2.zip -o weka-3-9-2.zip`
+* `unzip weka-3-9-2.zip`
+
+## Variable Ordering
+
+.binetflow has the following labels:
+
+`StartTime`, `Dur`, `Proto`, `SrcAddr`, `Sport`, `Dir`, `DstAddr`, `Dport`, `sTos`, `dTos`, `TotPkts`, `TotBytes`, `SrcBytes`, `Label`
+
+Of these labels, the target is the value in the `Label` column, and the variable ordering is: `Dport`, `Dur`, `TotBytes`, `TotPkts`, `SrcBytes`, `Proto`, `Dir`, `Sport`
+
+## BoostSRL
+
+Botnet-Buster uses [BoostSRL](https://github.com/starling-lab/BoostSRL) as the learning and inference engine for Discriminative Boosted Bayesian Networks. Most of these operations are automated, but a copy of the BoostSRL jar file should be downloaded with the `boosting-setup.sh` script in the `boosting` directory.
+
+* `cd boosting/`
+* `bash boosting-setup.sh`
+
 ## License
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

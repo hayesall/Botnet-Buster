@@ -1,19 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #  Overview:
-#      Name: download.sh
-#      Summary: A download script for the CTU-13-Dataset.
+#      Name: boosting-setup.sh
+#      Summary: A download/testing script for BoostSRL.
 #      Author: Alexander L. Hayes (@batflyer)
 #      Email: alexander.hayes@utdallas.edu
 #      Copyright: Alexander L. Hayes and Brian Ricks
 #      License: GPL-v3
 #
 #  Description:
-#      It's generally bad practice to push large data
-#      sets to GitHub. Download the data separately.
+#      The jar file can just as easily be downloaded
+#      from GitHub. This downloads and tests the jar.
 #
 #  Usage:
-#      $ bash download.sh
+#      $ bash boosting-setup.sh
 #
 #  Options:
 #      -h     Display this help message and exit.
@@ -38,54 +38,45 @@
 scriptmode=
 
 while getopts "hs" o; do
-    case ${o} in
-	h)
-	    # Help
-	    head -n 36 $0 | tail -n +3 | sed 's/#//'
-	    exit 0
-	    ;;
-	s)
-	    # Script mode, ignore interaction.
-	    scriptmode=True
-	    ;;
-	\?)
-	    echo "Error: -$OPTARG not recognized as a valid argument for download.sh"
-	    exit 1
-	    ;;
+  case ${o} in
+    h)
+      # Help and exit.
+      head -n 36 $0 | tail -n +3 | sed 's/#//'
+      exit 0
+      ;;
+    s)
+      # Script mode, ignore interaction
+      scriptmode=True
+      ;;
+    \?)
+      # Error and exit
+      echo "Error: -$OPTARG not recognized as a valid argument for boosting-setup.sh"
+      exit 1
+      ;;
     esac
 done
 
 function Downloader() {
-    # Download the .tar.bz of the CTU-13-Dataset using curl.
-    curl -k -L https://mcfp.felk.cvut.cz/publicDatasets/CTU-13-Dataset/CTU-13-Dataset.tar.bz2 > CTU-13-Dataset.tar.bz2
-
-    # Use unar to extract from the archive.
-    unar CTU-13-Dataset.tar.bz2
-}
-
-function Cleanup() {
-    # Perform cleanup by removing the archive.
-    rm -f CTU-13-Dataset.tar.bz2
+  # Download the v1-0.jar from GitHub
+  curl -k -L https://github.com/boost-starai/BoostSRL-Misc/blob/master/VersionHistory/Version1.0/v1-0.jar?raw=true > v1-0.jar
 }
 
 function Main() {
   if [[ ! $scriptmode ]]; then
-    printf "Download CTU-13-Dataset? (1.9 GB) [y/n] "
+
+    printf "Download BoostSRL v1-0.jar? (4.4 MB) [y/n] "
     read -r download
+
     if [[ "$download" = "y" ]]; then
+      # User answered yes, proceed to downloading.
       Downloader
-      printf "Remove the .tar.bz2 archive? [y/n] "
-      read -r removal
-      if [[ "$removal" = "y" ]]; then
-        Cleanup
-      else
-        echo "Did not remove CTU-13-Dataset.tar.bz2"
-      fi
     else
-      echo "Exited without downloading."
-      exit 0
+      # User did not answer yes, assume no.
+      echo "Did not download BoostSRL v1-0.jar"
     fi
+
   else
+    # Script mode is true, download without user interaction.
     Downloader
   fi
 }

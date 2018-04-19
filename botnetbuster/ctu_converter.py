@@ -39,7 +39,7 @@ __credits__ = [
 ]
 
 __license__ = "GPL-v3"
-__version__ = "0.0.1"
+__version__ = "0.1.2"
 __maintainer__ = "Alexander L. Hayes (@batflyer)"
 __email__ = "alexander@batflyer.net"
 __status__ = "Prototype"
@@ -109,7 +109,7 @@ def dataframe_to_relations(path_to_file, df, verbosity=False):
         ret = ''
         ret += type
         ret += '("'
-        ret += id.replace(' ','')
+        ret += id.replace(' ', '')
         ret += '","'
         ret += value.replace(' ', '')
         ret += '").'
@@ -218,7 +218,7 @@ def main():
     else:
         v = False
 
-    flow = binetflow_converter(args.file, dropCols=['StartTime'], verbosity=v)
+    flow = binetflow_converter(args.file, dropCols=['StartTime', 'SrcAddr', 'DstAddr', 'sTos', 'dTos'], verbosity=v)
     dataframe_to_relations(args.output, flow, verbosity=v)
 
 if __name__ == '__main__':
