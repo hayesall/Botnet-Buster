@@ -6,9 +6,20 @@ Final project for Professor Sriraam Natarajan's spring seminar on Statistical Re
 
 ## Setup
 
+**Clone the repository and download the CTU-13-Dataset**  
 * `git clone https://github.com/batflyer/Botnet-Buster.git`
 * `cd Botnet-Buster`
 * `bash downloader.sh`
+
+**Download BoostSRL**  
+* `cd boosting`
+* `bash boosting-setup.sh`
+
+**Convert a .binetflow to BoostSRL format**  
+* `python botnetbuster/ctu_converter.py -o train -f CTU-13-Dataset/1/capture20110810.binetflow`
+
+**Learn Discriminative Boosted Bayesian Network**  
+* `python botnetbuster/disc_boost.py`
 
 ## Converting .binetflow to BoostSRL format:
 
@@ -16,7 +27,7 @@ Final project for Professor Sriraam Natarajan's spring seminar on Statistical Re
 
 Convert a .binetflow to a set of facts and positive examples, creating `posEx.txt` and `facts.txt`.
 
-* `python src/ctu_converter.py -f CTU-13-Dataset/1/capture20110810.binetflow`
+* `python botnetbuster/ctu_converter.py -o train -f CTU-13-Dataset/1/capture20110810.binetflow`
 
 ## Weka Discretizations and Baselines
 
@@ -49,6 +60,7 @@ A full [copy of the license](https://github.com/batflyer/Botnet-Buster/blob/mast
 ## Attribution
 
 * `progress.py` was created by Vladimir Ignatev (@vladignatyev) and distributed under the terms of the MIT License. Discussion can be viewed on the [GitHub Gist page](https://gist.github.com/vladignatyev/06860ec2040cb497f0f3).
+* `disc_boost.py` uses code from [starling-lab/boostsrl-python-package](https://github.com/starling-lab/boostsrl-python-package) under the terms of the GPL-v3 License, the portions to validate and set modes files was used here.
 
 ## References
 
