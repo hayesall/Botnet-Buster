@@ -3,3 +3,5 @@ CTU-13-Dataset/
 CTU-13-Dataset.tar.bz2
 weka-3-9-2
 weka-3-9-2.zip
+*/.ipynb_checkpoints/
+.ipynb_checkpoints
