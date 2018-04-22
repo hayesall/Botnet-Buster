@@ -1,5 +1,15 @@
 %File: main.tex
 %Based on formatting-instructions.tex, distributed as part of the aaai submission information.
+
+%%% Professor Natarajan's Advice for the Final Paper:
+% 
+% 1. Four pages maximum.
+% 2. Try to write two pages and have lots of results/figures.
+% 3. AAAI Format.
+% 4. About one full column of related work to collect the area.
+%
+%%%
+
 \documentclass[letterpaper]{article}
 \usepackage{aaai}
 \usepackage{times}
@@ -31,13 +41,51 @@ absolutefunk@utdallas.edu\\
 \maketitle
 \begin{abstract}
 \begin{quote}
-The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset.
+The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset.\footnote{Code: \texttt{https://github.com/batflyer/Botnet-Buster}}
 \end{quote}
 \end{abstract}
 
 \section{Introduction}
+Distributed network attacks have been a thorn in the side of the internet since its early days.  In addition to denial-of-service, they are also responsible for spreading spam, malware, and even have a hand in data exfiltration and theft.  These types of attacks are commonly spread by the use of \emph{botnets}, which are a network of (often) hijacked computers for the purpose of accomplishing some nefarious goal, such as flooding a web server with page requests.  While reducing the frequency of these attacks is ideal, the evolution of attack strategies in response to current detection and mitigation techniques requires an approach which can generalize to newer, potential unobserved distributed attacks.
+
+However, given the growth of distributed attacked within the past 10 years, how well do these approaches generalize to the current threat landscape?  This question has implications for practically every aspect of the machine learning pipeline: data collection, feature extraction, which model to learn, and which algorithm to train the model?
+
+We focus on the problem of learning a generalizable model from \emph{sparse} botnet data, which often arises in the real-world.  This normally occurs due to the overall time period spent collecting network traffic compared to the duration in which the botnet was active.  In spite of this sparsity, careful feature engineering should help prevent data overfitting and allow for some acceptable measure of accuracy for many different off the shelf learning algorithms.  However, we need to select a learning algorithm which works will with our data and can learn a general model with our features.
 
 The CTU-13-Dataset is ``a dataset of botnet traffic that was captured in the CTU University, Czech Republic, in 2011'' \cite{garcia2014empirical}.
+
+\subsection{Background}
+
+``The internet was designed for a small group of people who trusted one another'' is a common reminder in network security. As the number of people and devices accessing the internet increases, the need to deal with problems such as intrusion detection, denial of service attacks, and botnets increase as well.
+
+\subsection{Related Work}
+
+Many approaches have applied traditional machine learning techniques for botnet and general distributed denial-of-service classification tasks, often with good results on specific network datasets.
+
+\section{Experiments}
+
+We answer four questions: (1) How do standard machine learning techniques perform on this task? (2) Do relational learning techniques--notably discriminative boosted Bayesian networks--provide better generalization? (3) Given the general knowledge, can we retroactively tweak the standard machine learning techniques to produce superior results? (4) What is the value of expert knowledge in such a task?
+
+Eight Weka \cite{witten2016data} algorithms were used to perform the baseline experiments. Since the goal is to learn a general method for detecting botnet activity, each of the thirteen CTU ``tasks'' were treated as a fold, and we report the average accuracy when the classifier is trained on one task and tested on another.
+
+\subsection{Results}
+
+\begin{tabular}{ |p{2.3cm}|p{1.9cm}|p{1.9cm}|  }
+\hline
+\multicolumn{3}{|c|}{CTU-13-Dataset} \\
+\hline
+Algorithm & Training Accuracy & Testing Accuracy \\
+\hline
+BN\_CI & 100.0\% & 0.0\% \\
+BN\_CI2 & 99.9\% & 0.1\% \\
+BN\_CI3 & 99.6\% & 0.4\% \\
+BN\_Tabu & 100.0\% & 0.0\% \\
+BN\_Tabu2 & 99.9\% & 0.1\% \\
+BN\_Tabu3 & 99.5\% & 0.5\% \\
+Random Forest & 100.0\% & 0.0\% \\
+Naive Bayes & 95.5\% & 4.5\% \\
+\hline
+\end{tabular}
 
 \bibliographystyle{aaai}
 \bibliography{botnet-buster}
