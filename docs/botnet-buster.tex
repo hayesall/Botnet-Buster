@@ -20,53 +20,69 @@
 \setlength{\pdfpagewidth}{8.5in}
 \setlength{\pdfpageheight}{11in}
 \pdfinfo{
-/Title (Botnet Buster)
-/Author (Alexander Hayes, Brian Ricks)}
+/Title (``Botnet Buster'': Thwarting Botnets with Discriminative Boosted Bayesian Networks)
+/Author (Brian Ricks, Alexander Hayes)}
 \setcounter{secnumdepth}{0}
 
 \begin{document}
 % The file aaai.sty is the style file for AAAI Press
 % proceedings, working notes, and technical reports.
 %
-\title{Botnet Buster}
-\author{Alexander L. Hayes\\
-The University of Texas at Dallas\\
-alexander.hayes@utdallas.edu\\
-\And
-Brian Ricks\\
+\title{``Botnet Buster'': Thwarting Botnets with\\Discriminative Boosted Bayesian Networks}
+
+\author{Brian Ricks\\
 The University of Texas at Dallas\\
 absolutefunk@utdallas.edu\\
+\And
+Alexander L. Hayes\\
+The University of Texas at Dallas\\
+alexander.hayes@utdallas.edu
 }
 
 \maketitle
 \begin{abstract}
 \begin{quote}
-The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset.\footnote{Code: \texttt{https://github.com/batflyer/Botnet-Buster}}
+The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset.\footnote{\texttt{https://github.com/batflyer/Botnet-Buster}}
 \end{quote}
 \end{abstract}
 
 \section{Introduction}
-Distributed network attacks have been a thorn in the side of the internet since its early days.  In addition to denial-of-service, they are also responsible for spreading spam, malware, and even have a hand in data exfiltration and theft.  These types of attacks are commonly spread by the use of \emph{botnets}, which are a network of (often) hijacked computers for the purpose of accomplishing some nefarious goal, such as flooding a web server with page requests.  While reducing the frequency of these attacks is ideal, the evolution of attack strategies in response to current detection and mitigation techniques requires an approach which can generalize to newer, potential unobserved distributed attacks.
+Distributed network attacks have been a thorn in the side of the internet since its early days.  In addition to denial-of-service, they are also responsible for spreading spam, malware, and even have a hand in data exfiltration and theft.  In spite of much effort in the research and white hat communities, these attacks are more prevalent today than ever.
+
+Distributed network attacks are commonly spread by the use of \emph{botnets}, which are a network of (often) hijacked computers for the purpose of accomplishing some nefarious goal, such as flooding a web server with page requests.  While reducing the frequency of these attacks is ideal, the evolution of attack strategies in response to current detection and mitigation techniques requires an approach which can generalize to newer, potential unobserved distributed attacks.
 
 However, given the growth of distributed attacked within the past 10 years, how well do these approaches generalize to the current threat landscape?  This question has implications for practically every aspect of the machine learning pipeline: data collection, feature extraction, which model to learn, and which algorithm to train the model?
 
-We focus on the problem of learning a generalizable model from \emph{sparse} botnet data, which often arises in the real-world.  This normally occurs due to the overall time period spent collecting network traffic compared to the duration in which the botnet was active.  In spite of this sparsity, careful feature engineering should help prevent data overfitting and allow for some acceptable measure of accuracy for many different off the shelf learning algorithms.  However, we need to select a learning algorithm which works will with our data and can learn a general model with our features.
+We focus on the problem of learning a generalizable model from \emph{sparse} botnet data, which often arises in the real-world.  This normally occurs due to the overall time period spent collecting network traffic compared to the duration in which the botnet was active.  In spite of this sparsity, careful feature engineering should help prevent data overfitting and allow for some acceptable measure of accuracy for many different off the shelf learning algorithms.  We hope that careful selection of our learning algorithm will enable model generality on related data.
 
-The CTU-13-Dataset is ``a dataset of botnet traffic that was captured in the CTU University, Czech Republic, in 2011'' \cite{garcia2014empirical}.
+Our experiments use the \emph{CTU-13-Dataset}, which is ``a dataset of botnet traffic that was captured in the CTU University, Czech Republic, in 2011'' \cite{garcia2014empirical}.  This dataset comprises 13 different runs utilizing multiple disjoint botnets.  Most alluring to us is the sparsity of the botnet examples; a vast majority ($>$97\%) of the examples are from normal traffic flows.  Also of importance is the use of multiple botnets over the runs which make up the datasets.  Such diversity is invaluable to experiment with generality across multiple similar botnets, in which some of the botnets may not be observed during training.
 
-\subsection{Background}
-
-``The internet was designed for a small group of people who trusted one another'' is a common reminder in network security. As the number of people and devices accessing the internet increases, the need to deal with problems such as intrusion detection, denial of service attacks, and botnets increase as well.
+\section{Preliminaries}
 
 \subsection{Related Work}
 
-Many approaches have applied traditional machine learning techniques for botnet and general distributed denial-of-service classification tasks, often with good results on specific network datasets.
+As the number of people and devices accessing the internet increases, the need to deal with problems such as intrusion detection, denial of service attacks, and botnets increase as well.
+
+Many approaches have applied traditional machine learning techniques for botnet and general distributed denial-of-service classification tasks, often with good results on specific network datasets.  Earlier work tended to focus on general intrusion detection tasks, often in a temporal environment \cite{Ye00amarkov,1174909,Joshi:2005:IHM:1167350.1167387,Xu:2007:DDA:1763599.1763621}.  In this setting, intrusions were modeled as sets of events ordered by time, with each set of events serving as a single example for either normal or abnormal behavior. Markov chains and hidden Markov networks are two popular models to learn in this setting.
+
+In a non-temporal setting, examples tend to be individual events, with each event corresponding to one or more features that describe the event.  For network security related intrusion tasks, these features are commonly those found in net flow data: source and destination IP address and port, number of packets comprising the flow, total bytes send or received, direction of flow, etc.  Early work in this setting trained models such as mixture models \cite{Puttini02bayesianclassification}, Naive Bayes \cite{10.1007/978-3-642-00670-8_9}, Bayesian networks \cite{1254306,Xu:2010:IDU:1946417.1946434}, random forests \cite{Zhang:2008:RNI:2220436.2221144}, and decision trees \cite{Osanaiye2016}.
+
+Early work specifically to botnet detection focused more on the \emph{command and control (c\&c)} flows \cite{4116687,Gu2008BotSnifferDB,Cho:2010:IAF:1866307.1866355,EURECOM+3886,DIETRICH2013475}, which is traffic generated by a botnet for node coordination.   A comparison of C4.5, naive Bayes, and Bayesian network learners to classify botnet c\&c traffic from normal traffic was spotlighted in \cite{4116687}.  The Bayesian network results especially seemed to highlight the issue of model overfitting to a given training set when confronted with test data that may have originated from the same botnet over different runs.  We imagine this problem is compounded when factoring in test data from similar botnets.
+
+More recent work has applied a random forest learner to a large scale botnet dataset captured by UC San Diego \cite{SINGH2014488}.  Most of their work went into the feature engineering and underlying distributed framework to handle the shear amount of data present, but the results were promising.  Feature engineering specifically related to botnet c&c channels were discussed in \cite{7891834}, using C4.5 as the learning algorithm.  Their approach for feature engineering used a genetic algorithm and exhaustive search to select important features from a list of non-temporal features generated through aggregation of temporal flow data.  Given the small feature space to search (19), and given their results for features selected, we feel that domain knowledge can reproduce such a set of important features.
+
+One drawback to much of the previous work in this field deals with how well a trained model represents reality.  For example, the dataset used in \cite{Zhang:2008:RNI:2220436.2221144} was released in 1999, almost a decade before the paper was published.  The network and threat landscape changed considerably during that time.  In \cite{Xu:2010:IDU:1946417.1946434}, the span of time between the dataset they used and publishing of their paper was 12 years.  More recently, \cite{7891834} used a dataset released in 2011.
+
+Another factor to consider is the feature engineering itself.  Plug-and-play methods may do well on a single dataset with minimal domain knowledge, but what happens when applying the trained model to other datasets showcasing the same class of threats?  Is the generality there?  How much domain knowledge is needed to maintain a baseline of generality?  \cite{BENASHER201551} took a deep look into this problem and, perhaps unsurprisingly, domain experts are quite important during the feature engineering task.  This suggests that a plug-and-play type approach to botnet detection may not yield the best results, but rather a combination of a domain expert and a `model' expert might be preferable.
+
+\section{Approach}
+
+To resolve some of these issues, the authors apply the state-of-the-art statistical relational learning system: BoostSRL\footnote{https://github.com/starling-lab/BoostSRL} based on the relational functional gradient boosting algorithm \cite{natarajan2015boosted} for learning discriminative boosted Bayesian networks \cite{ramanan2017discriminative}. Gradient-boosted tree learners have shown themselves to be a powerful technique across many real-world applications, particularly in the medical domain.  \cite{yang2017combining}.
 
 \section{Experiments}
-
 We answer four questions: (1) How do standard machine learning techniques perform on this task? (2) Do relational learning techniques--notably discriminative boosted Bayesian networks--provide better generalization? (3) Given the general knowledge, can we retroactively tweak the standard machine learning techniques to produce superior results? (4) What is the value of expert knowledge in such a task?
 
-Eight Weka \cite{witten2016data} algorithms were used to perform the baseline experiments. Since the goal is to learn a general method for detecting botnet activity, each of the thirteen CTU ``tasks'' were treated as a fold, and we report the average accuracy when the classifier is trained on one task and tested on another.
+Before diving into the model training, we need to remove features of our original set which will probably not generalize.  Eight Weka \cite{witten2016data} algorithms were used to perform these baseline experiments, using all the features in our set. Since the goal is to learn a general method for detecting botnet activity, each of the thirteen CTU ``tasks'' were treated as a fold, and we report the average accuracy when the classifier is trained on one task and tested on another.
 
 \subsection{Results}
 
@@ -86,6 +102,16 @@ Random Forest & 100.0\% & 0.0\% \\
 Naive Bayes & 95.5\% & 4.5\% \\
 \hline
 \end{tabular}
+
+As reflected in these results, there are present features which are not generalizing to other runs within the dataset.  Now the task becomes one of removing the `bad' features from the set.  Determining such features can be accomplished through domain knowledge and analysis of the Bayesian network structures learned from the table above.
+
+In terms of domain knowledge, we observe that features such as source IP address will naturally overfit to a training set due to the implicit assumption this feature makes that all botnets will originate from the same set of source IP addresses.  Clearly this is not true, even for the same botnet.  For example, botnets which utilize source IP spoofing, even the same botnet will appear to come from different sets of source IP addresses over different experimental runs.
+
+In analyzing the Bayesian network structures learned from the table above, we observe that given the single class tree-based networks learned, the children (feature) nodes have more influence to the class the closer they are to the class in terms of edges.  So direct children will hold more influence than grandchildren.  Indeed, source IP address was a direct child in all the models learned.  This doesn't necessarily mean the feature is bad, just that it will hold a lot of influence, so we need to look at all such features that are direct children.  One feature that falls into this boat, destination IP address, should also be removed given that a botnet may not always attack the same destination, and will not generalize to data collected from other network topologies. Removing destination IP address as a feature is an example of applying domain knowledge after using other techniques to point in a certain direction.
+
+Other features which hold direct influence to the class, but which should generalize well, are destination port and flow duration. For the former, botnets typically will target a specific port on a victim server for a specific protocol (say http), so destination port should generalize to most botnets of the same attack class.  The same argument can be used for keeping flow duration as well.
+
+\section{Conclusion}
 
 \bibliographystyle{aaai}
 \bibliography{botnet-buster}
