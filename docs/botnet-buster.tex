@@ -42,7 +42,7 @@ alexander.hayes@utdallas.edu
 \maketitle
 \begin{abstract}
 \begin{quote}
-The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset.\footnote{\texttt{https://github.com/batflyer/Botnet-Buster}}
+The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset.\footnote{All code and \LaTeX{} discussed in this paper are available online:  \texttt{https://github.com/batflyer/Botnet-Buster}}
 \end{quote}
 \end{abstract}
 
@@ -77,7 +77,11 @@ Another factor to consider is the feature engineering itself.  Plug-and-play met
 
 \section{Approach}
 
-To resolve some of these issues, the authors apply the state-of-the-art statistical relational learning system: BoostSRL\footnote{https://github.com/starling-lab/BoostSRL} based on the relational functional gradient boosting algorithm \cite{natarajan2015boosted} for learning discriminative boosted Bayesian networks \cite{ramanan2017discriminative}. Gradient-boosted tree learners have shown themselves to be a powerful technique across many real-world applications, particularly in the medical domain.  \cite{yang2017combining}.
+The imbalance between the potential number of positive and negative examples makes this a potential problem to approach from the perspective of statistical relational learning (SRL).  The authors apply the state-of-the-art statistical relational learning system: BoostSRL\footnote{https://github.com/starling-lab/BoostSRL} based on the relational functional gradient boosting algorithm \cite{natarajan2015boosted}.  Gradient boosted tree learners generally set up the problem in the form of learning a series of regression trees, where each tree is a relatively weak learner that fits toward correcting the error of the previous.
+
+BoostSRL (an implementation of the \textit{Relational Functional Gradient Boosting} algorithm) has been applied to a variety of real world domains; including from identifying Parkinson's parients, predicting the onset of postpartum depression, and recommending jobs to potential applicants \cite{dhami2017identifying,natarajan2017boosting,yang2017combining}.
+
+The authors build on the work of \cite{ramanan2017discriminative,yang2014learning} for learning discriminative boosted Bayesian networks.  Because statistical relational models may operate over data with a massive imbalance between the number of positive and negative examples, and different costs for classification of each, explicitly tweaking the cost function for this problem is essential.
 
 \section{Experiments}
 We answer four questions: (1) How do standard machine learning techniques perform on this task? (2) Do relational learning techniques--notably discriminative boosted Bayesian networks--provide better generalization? (3) Given the general knowledge, can we retroactively tweak the standard machine learning techniques to produce superior results? (4) What is the value of expert knowledge in such a task?
