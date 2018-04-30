@@ -42,7 +42,7 @@ alexander.hayes@utdallas.edu
 \maketitle
 \begin{abstract}
 \begin{quote}
-The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset.\footnote{All code and \LaTeX{} discussed in this paper are available online:  \texttt{https://github.com/batflyer/Botnet-Buster}}
+The authors present the application of learning Discriminative Boosted Bayesian Networks to the problem of detecting botnet activity on a network from the CTU-13-Dataset, and compare their results with those of traditional machine learning approaches both with and without expert knowledge. To our knowledge, this is the first application of statistical relational learning on a domain such as this.\footnote{All code and \LaTeX{} discussed in this paper are available online:  \texttt{https://github.com/batflyer/Botnet-Buster}}
 \end{quote}
 \end{abstract}
 
@@ -56,6 +56,8 @@ However, given the growth of distributed attacked within the past 10 years, how 
 We focus on the problem of learning a generalizable model from \emph{sparse} botnet data, which often arises in the real-world.  This normally occurs due to the overall time period spent collecting network traffic compared to the duration in which the botnet was active.  In spite of this sparsity, careful feature engineering should help prevent data overfitting and allow for some acceptable measure of accuracy for many different off the shelf learning algorithms.  We hope that careful selection of our learning algorithm will enable model generality on related data.
 
 Our experiments use the \emph{CTU-13-Dataset}, which is ``a dataset of botnet traffic that was captured in the CTU University, Czech Republic, in 2011'' \cite{garcia2014empirical}.  This dataset comprises 13 different runs utilizing multiple disjoint botnets.  Most alluring to us is the sparsity of the botnet examples; a vast majority ($>$97\%) of the examples are from normal traffic flows.  Also of importance is the use of multiple botnets over the runs which make up the datasets.  Such diversity is invaluable to experiment with generality across multiple similar botnets, in which some of the botnets may not be observed during training.
+
+The rest of the paper is structured as follows:  In the related work section, we discuss related work that is both relevant to the general field of intrusion detection and to the subset of botnet detection.  Also presented is work related to why domain knowledge is important in feature engineering.  Next we dive into statistical relational learning and related work that is relevant to our problem definition and approach.  The experimental section showcases results from the feature engineering stage, and we wrap up the paper with a thorough discussion on inherent limitations which prevented full results from our chosen approach to reach fruition.
 
 \section{Related Work}
 
@@ -77,9 +79,9 @@ Another factor to consider is the feature engineering itself.  Plug-and-play met
 
 \subsection{Statistical Relational Learning}
 
-The imbalance between the potential number of positive and negative examples makes this a potential problem to approach from the perspective of statistical relational learning (SRL).  The authors apply the state-of-the-art statistical relational learning system: BoostSRL\footnote{https://github.com/starling-lab/BoostSRL} based on the relational functional gradient boosting algorithm \cite{natarajan2015boosted}.  Gradient boosted tree learners generally set up the problem in the form of learning a series of regression trees, where each tree is a relatively weak learner that fits toward correcting the error of the previous.
+The imbalance between the potential number of positive and negative examples makes this a potential problem to approach from the perspective of statistical relational learning (SRL).  The authors apply the state-of-the-art statistical relational learning system: BoostSRL\footnote{\texttt{https://github.com/starling-lab/BoostSRL}} based on the relational functional gradient boosting algorithm \cite{natarajan2015boosted}.  Gradient boosted tree learners generally set up the problem in the form of learning a series of regression trees, where each tree is a relatively weak learner that fits toward correcting the error of the previous.
 
-BoostSRL (an implementation of the \textit{Relational Functional Gradient Boosting} algorithm) has been applied to a variety of real world domains; including from identifying Parkinson's parients, predicting the onset of postpartum depression, and recommending jobs to potential applicants \cite{dhami2017identifying,natarajan2017boosting,yang2017combining}.
+BoostSRL (an implementation of the \textit{Relational Functional Gradient Boosting} algorithm) has been applied to a variety of real world domains; including from identifying Parkinson's patients, predicting the onset of postpartum depression, and recommending jobs to potential applicants \cite{dhami2017identifying,natarajan2017boosting,yang2017combining}.
 
 The authors build on the work of \cite{ramanan2017discriminative,yang2014learning} for learning discriminative boosted Bayesian networks.  Because statistical relational models may operate over data with a massive imbalance between the number of positive and negative examples, and different costs for classification of each, explicitly tweaking the cost function for this problem is essential.  Usually the cost function is tweaked explicitly to set the trade-off between false negatives and false positives-- since in recommendation systems the goal is to have high precision, but medical applications high recall is more desirable--but explicitly deciding on the trade-off in the botnet problem is not as obvious.  If the goal is to identify bots with high precision, some may not be marked as bots under cases of uncertainty; if high recall is desired, some humans may also be labeled as bots. This point is explored by tweaking alpha and beta values in our experiments.
 
@@ -112,11 +114,33 @@ As reflected in these results, there are present features which are not generali
 
 In terms of domain knowledge, we observe that features such as source IP address will naturally overfit to a training set due to the implicit assumption this feature makes that all botnets will originate from the same set of source IP addresses.  Clearly this is not true, even for the same botnet.  For example, botnets which utilize source IP spoofing, even the same botnet will appear to come from different sets of source IP addresses over different experimental runs.
 
-In analyzing the Bayesian network structures learned from the table above, we observe that given the single class tree-based networks learned, the children (feature) nodes have more influence to the class the closer they are to the class in terms of edges.  So direct children will hold more influence than grandchildren.  Indeed, source IP address was a direct child in all the models learned.  This doesn't necessarily mean the feature is bad, just that it will hold a lot of influence, so we need to look at all such features that are direct children.  One feature that falls into this boat, destination IP address, should also be removed given that a botnet may not always attack the same destination, and will not generalize to data collected from other network topologies. Removing destination IP address as a feature is an example of applying domain knowledge after using other techniques to point in a certain direction.
+In analyzing the Bayesian network structures learned from the table above, we observe that given the single class tree-based networks learned, the children (feature) nodes have more influence to the class the closer they are to the class in terms of edges.  So direct children will hold more influence than grandchildren.  Indeed, source IP address (\texttt{SrcAddr}) was a direct child in all the models learned.  This doesn't necessarily mean the feature is bad, just that it will hold a lot of influence, so we need to look at all such features that are direct children.  One feature that falls into this boat, destination IP address (\texttt{DstAddr}), should also be removed given that a botnet may not always attack the same destination, and will not generalize to data collected from other network topologies. Removing destination IP address as a feature is an example of applying domain knowledge after using other techniques to point in a certain direction.
 
-Other features which hold direct influence to the class, but which should generalize well, are destination port and flow duration. For the former, botnets typically will target a specific port on a victim server for a specific protocol (say http), so destination port should generalize to most botnets of the same attack class.  The same argument can be used for keeping flow duration as well.
+One interesting feature that usually is a direct influence, but which does not generalize at all is start time (\texttt{StartTime}).  When a botnet begins its attack, relative to the start of collecting data, is very much determined by the specific dataset run.  Outside of the dataset, it's practically irrelevant, but sometimes can give the illusion of being a good feature depending on exactly when the attack begins relative to whatever else is going on at that point in time.  And that's the key, the probably of other events sharing the exact timestamp of the start of the attack is rare.
+
+Other features which hold direct influence to the class, but which should generalize well, are destination port (\texttt{Dport}) and flow duration (\texttt{Dur}). For the former, botnets typically will target a specific port on a victim server for a specific protocol (say http), so destination port should generalize to most botnets of the same attack class.  The same argument can be used for keeping flow duration as well.
+
+The next step is finding an appropriate ordering of the features we keep, which is a prerequisite for using discriminative boosted Bayesian networks as a learning method.  The binetflow in the CTU-13 Dataset supplies the following fourteen labels:
+
+\texttt{StartTime}, \texttt{Dur}, \texttt{Proto}, \texttt{SrcAddr}, \texttt{Sport}, \texttt{Dir}, \texttt{DstAddr}, \texttt{Dport}, \texttt{sTos}, \texttt{dTos}, \texttt{TotPkts}, \texttt{TotBytes}, \texttt{SrcBytes}, \texttt{Label}
+
+Of these labels, the target is the value in the \texttt{Label} column, and after eliminating the features mentioned above, the variable ordering becomes: \texttt{Dport}, \texttt{Dur}, \texttt{TotBytes}, \texttt{TotPkts}, \texttt{SrcBytes}, \texttt{Proto}, \texttt{Dir}, \texttt{Sport}.
+
+\subsection{Limitations}
+
+The code is implemented, but we do not have the results for any of the thirteen tasks yet. When a task is converted to the appropriate predicate-logic format, there are around 25 million facts and several million positive and negative examples. Regardless of how much computing power is thrown at it, BoostSRL appears to hang while reading the facts and does not recover.
+
+There are several possible ways around this. The variable ordering we are currently using may be adapted such that we use even fewer variables, iteratively removing one variable (starting from the end deemed ``least relevant'') until we have something that can be computed.  A more efficient representation of the facts may be possible--currently we have discretized the positive and negative examples into ``bot or not'', but similar discretizations may be possible for the facts may reduce the overall number of groundings that need to be reasoned about.  If neither of these accomplish our goals, a more powerful learning and inference framework may need to be considered.
 
 \section{Conclusion}
+
+While the experiments still may need considerable work, the authors have presented a novel approach toward detecting botnet activity on a network--as far as we know, this is the first application of statistical relational learning to this domain.
+
+\section{Acknowledgements}
+
+The authors would like to thank Professor Sriraam Natarajan, Professor Gautam Kunapuli, and their classmates in the Spring 2018 Statistical Relational Learning Seminar (CS 7301.002) for their comments and general feedback as this paper came together.
+
+\clearpage
 
 \bibliographystyle{aaai}
 \bibliography{botnet-buster}
